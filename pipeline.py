@@ -1,15 +1,18 @@
 import cv2
 import numpy as np
-%matplotlib inline
+#% matplotlib inline
 import matplotlib.pyplot as plt
 import matplotlib.image as pltimg
 from PIL import Image
-
+import argparse
+import os
+import sys
 
 
 
 def transform(img,k=2):
-    
+   
+    m, n, o = img.shape
   # make a copy of the image
     copy_image = img.copy()
 
@@ -19,9 +22,9 @@ def transform(img,k=2):
     channel_three = copy_image[:,:,2]
 
     # create dummy array of zeros for each channel
-    new_channel_one = np.zeros((1600,2400))
-    new_channel_two = np.zeros((1600,2400))
-    new_channel_three = np.zeros((1600,2400))
+    new_channel_one = np.zeros((k*m,k*n))
+    new_channel_two = np.zeros((k*m,k*n))
+    new_channel_three = np.zeros((k*m,k*n))
 
     # iterate each row and column from the image to be magnified for channel 1
     for m,c in enumerate(channel_one):
@@ -66,25 +69,32 @@ def transform(img,k=2):
 
 if __name__ == '__main__':
     #specify directory to the input image
-    image_dir = "/desktop/image/test.jpg"
+#    image_dir = "/desktop/image/images.jpeg
+    base_dir = 'desktop/image'
+    imagename = sys.argv[1]
+    image_dir = os.path.join(base_dir, imagename)
+    image_n = imagename.split('.')[0]
+    output_dir = os.path.join('desktop/output/', '{}.png'.format(imagename))
+
 
     #pass in image directory into matplotlib image library reader
     img=pltimg.imread(image_dir)
+    
     #display shape of image
     print(img.shape)
-    m, n = img.shape
+    m, n, o = img.shape
 
     #make a copy of image
     copy_image = img.copy()
 
     #call the transformer function
     c1, c2, c3 = transform(copy_image, k=2) #returns RGB index 0,1,2 as a tuple of arrays
-
+    k  = 2
     # create a dummy RGB array of dimension k*m by k*n by 3
     array = np.zeros([k*m,k*n, 3], dtype=np.uint8)
     array[:,:,0] = c1 #assign R
     array[:,:,1] = c2 # assign G
     array[:,:,2] = c2 # assign B
 
-    img = Image.fromarray(array)
-    img.save('testrgb.png')
+    save_img = Image.fromarray(array)
+    save_img.save(output_dir)
